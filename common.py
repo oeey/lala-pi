@@ -13,18 +13,22 @@ import signal
 
 SYSLOG_SETUP = False
 
+
 def common_noop():
     log("NO OP Shutdown")
     pass
 SHUTDOWN_CALLBACK = common_noop
 
+
 def setup_log(label):
     global SYSLOG_SETUP
     syslog.openlog('[{label}]'.format(label=label))
-    SYSLOG_SETUP=True
+    SYSLOG_SETUP = True
+
 
 def setup_syslog(label):
     setup_log(label)
+
 
 def log(msg):
     global SYSLOG_SETUP
@@ -32,12 +36,16 @@ def log(msg):
         setup_syslog('UNKNOWN')
     syslog.syslog(str(msg))
 
+
 def kill_signal_handler(signal, frame):
     log("Being killed off by signal: {signal}".format(signal=signal))
     log("Calling shutdown callback...")
+    if frame:
+        pass
     SHUTDOWN_CALLBACK()
     log("Goodbye!")
     sys.exit(0)
+
 
 def deamonize():
     log("Starting Daemon...")
@@ -53,3 +61,7 @@ def deamonize():
     signal.signal(signal.SIGTERM, kill_signal_handler)
     signal.signal(signal.SIGALRM, kill_signal_handler)
 
+
+if __name__ == "__main__":
+    print "Nothing to see here, move along!"
+    sys.exit(1)
