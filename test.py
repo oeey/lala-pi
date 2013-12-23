@@ -20,12 +20,12 @@ common.setup_log('ZMQ_TEST')
 
 context = zmq.Context()
 
+z_send = context.socket(zmq.PUB)
+z_send.connect("tcp://localhost:5556")
+
 z_recv = context.socket(zmq.SUB)
 z_recv.connect("tcp://localhost:5555")
 z_recv.setsockopt(zmq.SUBSCRIBE, '')  # subscribe to everything
-
-z_send = context.socket(zmq.PUB)
-z_send.connect("tcp://localhost:5556")
 
 
 log("ZMQ Client Started!")
