@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+#
+# lala-pi - keypad.py
+# USB Keypad
+# Author: Kenneth Burgener <kenneth@oeey.com> (c) 2013
+#
+
 import os
 
 # pip install pyzmq
