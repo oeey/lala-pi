@@ -59,4 +59,15 @@ while p.poll() == None:
 
     #sys.stdout.write("_")
 
-tty.tcsetattr(sys.stdin.fileno(), tty.TCSAFLUSH, old)
+# Restore stdin
+#tty.tcsetattr(sys.stdin.fileno(), tty.TCSAFLUSH, old)
+tty.tcsetattr(sys.stdin.fileno(), tty.TCSADRAIN, old)
+
+# tcsetattr(fd, when, attributes) - The when argument determines when the
+# attributes are changed:
+#   TCSANOW to change immediately,
+#   TCSADRAIN to change after transmitting all queued output
+#   TCSAFLUSH to change after transmitting all queued output and
+#             discarding all queued input.
+    
+# os.system("stty sane")
