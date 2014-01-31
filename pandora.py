@@ -18,6 +18,8 @@ import zmq
 import common
 log = common.log
 
+TIMEOUT = 60 * 60  # 60 minutes
+
 # apt-get install pianobar
 # mkdir -p ~/.config/pianobar
 # mkfifo ~/.config/pianobar/ctl
@@ -40,6 +42,7 @@ if __name__ == "__main__":
     z_recv = context.socket(zmq.SUB)
     z_recv.connect("tcp://localhost:5555")
     z_recv.setsockopt(zmq.SUBSCRIBE, 'KEY:')  # subscribe to everything
+    z_recv.setsockopt(zmq.SUBSCRIBE, 'PANDORA:')  # subscribe to everything
 
     z_send = context.socket(zmq.PUB)
     z_send.connect("tcp://localhost:5556")
@@ -69,6 +72,7 @@ if __name__ == "__main__":
     poller = zmq.Poller()
     poller.register(z_recv, zmq.POLLIN)
 
+    start_time = time.time()
     log("ZMQ Pandora Started!")
     while p.poll() is None:
 
@@ -94,6 +98,7 @@ if __name__ == "__main__":
                     f.write('n')
             else:
                 # assume we need to quit
+                log('Quit message received...')
                 with open('/root/.config/pianobar/ctl', 'a') as f:
                     f.write('q')
                 time.sleep(1)
@@ -104,6 +109,13 @@ if __name__ == "__main__":
             #    z_send.send(message)
             #except zmq.ZMQError as err:
             #    log('Send error: ' + str(err))
+
+        if time.time() > start_time + TIMEOUT:
+            log('1 hour timeout, quitting...')
+            with open('/root/.config/pianobar/ctl', 'a') as f:
+                f.write('q')
+            time.sleep(1)
+            clean_shutdown()
 
     log("Pandora quit unexpectedly...")
     clean_shutdown()

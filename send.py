@@ -43,7 +43,7 @@ if True:
     if message:
         try:
             print "Send: " + message
-            log('SEND:' + message)
+            log('SEND: ' + message)
             z_send.send(message)
         except zmq.ZMQError as err:
             log('Send error: ' + str(err))

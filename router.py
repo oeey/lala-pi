@@ -8,6 +8,7 @@
 
 import time
 
+# apt-get install python-zmq
 import zmq
 
 import common

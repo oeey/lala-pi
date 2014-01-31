@@ -69,5 +69,5 @@ tty.tcsetattr(sys.stdin.fileno(), tty.TCSADRAIN, old)
 #   TCSADRAIN to change after transmitting all queued output
 #   TCSAFLUSH to change after transmitting all queued output and
 #             discarding all queued input.
-    
+
 # os.system("stty sane")

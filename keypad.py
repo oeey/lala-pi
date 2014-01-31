@@ -14,8 +14,11 @@ import zmq
 import common
 log = common.log
 
+# apt-get install python-setuptools python-dev
+# easy_install pip
 # pip install evdev
 from evdev import InputDevice
+from evdev import ecodes
 from select import select
 
 # look for a /dev/input/by-id/usb...kbd or similar
@@ -30,6 +33,7 @@ DEVICE = "/dev/input/by-id/usb-ORTEK_USB_Keyboard_Hub-event-kbd"
 
 # keymapping determined by trial and error
 keys = {
+    69: "NL",  # Num Lock
     79: "1",
     80: "2",
     81: "3",
@@ -44,27 +48,28 @@ keys = {
     28: "ENTER",
     78: "+",
     74: "-",
-    14: "BS",
+    14: "BS",  # Back Space
     55: "*",
     98: "/",
-    # Numlock keys:
-    111: "N.",
-    110: "N0",
-    107: "N1",
-    108: "N2",
-    109: "N3",
-    105: "N4",
-    # notice the missing N5
-    106: "N6",
-    102: "N7",
-    103: "N8",
-    104: "N9",
+
+    # non num lock keys:
+    111: "_.",  # Del
+    110: "_0",  # Ins
+    107: "_1",  # End
+    108: "_2",  # Down
+    109: "_3",  # PgDn
+    105: "_4",  # Left
+    # notice the missing N5 - better to use num lock mode
+    106: "_6",  # Right
+    102: "_7",  # Home
+    103: "_8",  # Up
+    104: "_9",  # PgUp
 }
 
 # make Pychecker safe
 if __name__ == "__main__":
 
-    common.setup_log('ZMQ_KEYBOARD')
+    common.setup_log('ZMQ_KEYPAD')
 
     common.deamonize()
 
@@ -84,6 +89,26 @@ if __name__ == "__main__":
 
     log("ZMQ Keyboard Started!")
 
+    # is [('LED_NUML', 0)] or []
+    log("LED state: " + str(dev.leds(verbose=True)))
+    # is [0] or []
+    log("LED statea: " + str(dev.leds()))
+
+    #log("Turning on num lock")
+    ## turn on num lock
+    #dev.set_led(ecodes.LED_NUML, 1)
+    #log("LED state: " + str(dev.leds(verbose=True)))
+    #log("LED statea: " + str(dev.leds()))
+    #
+    #dev.set_led(ecodes.LED_NUML, 0)
+    #log("LED state: " + str(dev.leds(verbose=True)))
+    #log("LED statea: " + str(dev.leds()))
+    #
+    #dev.set_led(ecodes.LED_NUML, 1)
+    #log("LED state: " + str(dev.leds(verbose=True)))
+    #log("LED statea: " + str(dev.leds()))
+
+    i = 0
     while True:
 
         # wait for keyboard command, 5 sec timeout
@@ -106,7 +131,9 @@ if __name__ == "__main__":
         # read keyboard
         for event in dev.read():
             # event.code 69 means return to idle
-            if event.type == 1 and event.value == 1 and event.code != 69:
+            #if event.type == 1 and event.value == 1 and event.code != 69:
+            if event.type == 1 and event.value == 1:
+                log("K" + str(event.code))
                 if event.code in keys:
                     log("KEY: " + keys[event.code])
                     try:
@@ -114,6 +141,24 @@ if __name__ == "__main__":
                         z_send.send('KEY: ' + keys[event.code])
                     except zmq.ZMQError as err:
                         log('Send error: ' + str(err))
+
+                log("led:" + str(dev.leds()))
+                #if i == 1:
+                #    log('sed num 0')
+                #    dev.set_led(ecodes.LED_NUML, 0)
+                #    i = 0
+                #else:
+                #    log('sed num 1')
+                #    dev.set_led(ecodes.LED_NUML, 1)
+                #    i = 1
+
+        log(".")
+
+        #led = dev.leds()
+        #if len(led) >= 1 and led[0] == 0:
+        #    log("re-enabling num lock")
+        #    # turn on num lock
+        #    dev.set_led(ecodes.LED_NUML, 1)
 
     log("Shutting down...")
     z_recv.close()
