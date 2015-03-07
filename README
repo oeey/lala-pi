@@ -16,13 +16,13 @@ The following applications are needed:
 
 ## Usage
 
-Start ZMQ router code:
+Start ZMQ router code:  
     python router.py
 
-To test router code:
+To test router code:  
     python router-echo-test.py
 
-Start various sensor monitors:
+Start various sensor monitors:  
     python keypad.py
     python pandora.py
     python pianobar_ctl.py
